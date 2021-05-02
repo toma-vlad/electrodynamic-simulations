@@ -40,11 +40,11 @@ $$ -->
 ## Integrating the Equations of Motion
 The script loops over all provided laser configurations. For each type, using tabulated minima (or a decay of at least 1/100 from peak), initial conditions overlaying regions of interests will be generated. 
 
-In the figure below, the intensity of a Laguerre-Gauss mode with right-handed transverse circular polarization, radial number p = 2 and m = -1 is shown
+In the figure below, the intensity of a Laguerre-Gauss mode with right-handed transverse circular polarization, radial number `p = 2` and `m = -1` is shown
 
 <div align = "center"><img src = "img/xy00Energy1.02-1.png"></div>
 
-Given this field pattern, the zone of interest would be given by those high intensity rings. And 3 zones would be considered. For each N initial conditions will be generated.
+Given this field pattern, the zone of interest are the 3 high intensity rings. For each zone `N` initial conditions will be generated.
 ```
 R0 = [UniformAnnulus(w₀*p.roots[j], w₀*p.roots[j+1])[1] for i in 1:N]
 ```
@@ -53,9 +53,10 @@ All particles start with `z = 0` i.e., in a XY-plane circle, around the origin.
 Next we integrate the equations of motion using  [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl), namely 
 
 ```
-M = solve(eprob, Vern9(), EnsembleThreads(), abstol=1e-9, reltol=1e-9, saveat = (τf-τi)/time_samples, , trajectories = 4N)
+M = solve(eprob, Vern9(), EnsembleThreads(), abstol=1e-9, reltol=1e-9,
+    saveat = (τf-τi)/time_samples, trajectories = 4N)
 ```
-through `M` we have access to the 4-position, the 4-velocity, the [angular/boost momentum tensor](https://en.wikipedia.org/wiki/Relativistic_angular_momentum#4d_Angular_momentum_as_a_bivector), because our solve return for each particle at each moment of time the function `Mμν(v)`,
+and through `M` we have access to the 4-position, the 4-velocity, the [angular/boost momentum tensor](https://en.wikipedia.org/wiki/Relativistic_angular_momentum#4d_Angular_momentum_as_a_bivector) at every time step, for every particle. Our `output_func` returns for each particle a list at at regular time samples in the form of the function `Mμν(v)`.
 ```
     function Mμν(v)
     x⁰, x¹, x², x³, u⁰, u¹, u², u³ = v
@@ -77,7 +78,7 @@ end
 
 Since we are dealing with a statistical ensemble, we look for collective behaviour through means. There are two kinds of means done in this script.
 
-- Timewise: the relevant quantities are averaged using [ThreadsX.jl](https://github.com/tkf/ThreadsX.jl)
+- Time-wise: the relevant quantities are averaged using [ThreadsX.jl](https://github.com/tkf/ThreadsX.jl)
 ```
 function Particle_Avg(M,J)
     [ThreadsX.sum(getproperty(M[i][t], J)
@@ -94,12 +95,12 @@ R1 = RHOVec[1,:][idx]
 
 ## Plots 
 
-In order to facilitate pretty graphics, trial and error lead to a solution utilizing [Serialization.jl](https://github.com/JuliaLang/julia/tree/master/stdlib/Serialization). This way, all plot objects will be saved as is and can be reloaded and modified using the usual [Plots.jl](https://github.com/JuliaPlots/Plots.jl).
+In order to facilitate pretty graphics, trial and error lead to a solution utilizing [Serialization.jl](https://github.com/JuliaLang/julia/tree/master/stdlib/Serialization). This way, all plot objects will be saved, grouped in `plot_data` lists for each `sim_name` and saved as is in binary form (without file ending). 
 ```
 serialize("$(sim_name)", plot_data)
 ```
 
-Just use 
+They can then be reloaded and modified using the usual [Plots.jl](https://github.com/JuliaPlots/Plots.jl), just use 
 ```
 myplots = deserialize("name")
 ```
@@ -107,6 +108,8 @@ and modify the plot elements as you would a regular plot.
 
 ## field_plots.jl
 
-This file contains the code used to generate some useful plots which give information about the fields we study. An example:
+This file contains the code used to generate some useful plots which give information about the fields we study. For example azimuthally mediated electromagnetic field energy for Laguerre-Gauss mode `p = 2` and `m = -1`:
 
-<div align = "center"><img src = "img/rw0.02-1.png"></div>
+<div align = "center"><img src = "img/box_rw0.022.png"></div>
+
+Here, the tabulated roots are used to highlight the separated regions where the initial conditions are genereated in [electrodynamic-sims.jl](https://github.com/toma-vlad/electrodynamic-simulations/blob/main/electrodynamic-sims.jl).

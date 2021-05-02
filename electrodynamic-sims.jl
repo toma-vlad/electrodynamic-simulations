@@ -283,7 +283,7 @@ for(sim_name, p) in pairs(field_param)
     
         eprob = problem_set(R0, p)
         M = solve(eprob, Vern9(), EnsembleThreads(), abstol=1e-9, reltol=1e-9,
-                saveat = (τf-τi)/time_samples , trajectories = N)
+                saveat = (τf-τi)/time_samples, trajectories = N)
         
         z,  Lz,  L² = Particle_Avg.((M,),(:x³, :Lz, :L²))
         z², Lz², L⁴ = Particle_Avg2.((M,),(:x³, :Lz, :L²))
@@ -336,7 +336,7 @@ for(sim_name, p) in pairs(field_param)
 
     eprob = problem_set(R1, p)
     M = solve(eprob, Vern9(), EnsembleThreads(), abstol=1e-9, reltol=1e-9,
-            saveat = (τf-τi)/time_samples , trajectories = 4N)
+            saveat = (τf-τi)/time_samples, trajectories = 4N)
 
 
     xDens = 100
