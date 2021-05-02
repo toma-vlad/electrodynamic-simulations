@@ -28,25 +28,24 @@ function folder_setup(path)
     pwd()
 end
 
-folder_setup("output_particles_final5")
+folder_setup("output_particles")
 
-#number of particles
-const N = 25_000
-const c = 137.036
-const ω = 0.057; const T₀ = 2π/ω
-const k = ω*c
-const λ = c*T₀
-const w₀ = 75 * λ
-const a₀ = 2.;const AA = a₀*c # (qA₀)/(mc) = a₀
-const w = 10.; const τ = w/ω;
-const n = 5
-const π₀ = a₀*c
-const maxR = 3w₀
+const N = 25_000 # number of particles, for each ring, 4N for radius averaging
+const c = 137.036 # speed of light
+const ω = 0.057; const T₀ = 2π/ω # angular frequency, period
+const k = ω*c # wavevector
+const λ = c*T₀ # wavelength
+const w₀ = 75 * λ # is the waist radius
+const a₀ = 2.; const AA = a₀*c # (qA₀)/(mc) = a₀
+const w = 10.; const τ = w/ω; # temporal pulse decay time given in terms of number of oscilations and frequency 
+const n = 5 # number of periods to integrate before and after pulse collides with particles 
+const π₀ = a₀*c # in atomic units, a₀mc has units of linear momentum and sets the scale for linear momentum transfered to the particle, not that m = 1 for our particles
+const maxR = 3w₀ # maximum radius for distributing praticles
 
 const g = @SMatrix [1  0  0  0;
                     0 -1  0  0;
                     0  0 -1  0;
-                    0  0  0 -1]
+                    0  0  0 -1] # Minkowski space metric
 
 @with_kw struct InterPars{qq,mm,typo,rewts}
     q::qq = -1
