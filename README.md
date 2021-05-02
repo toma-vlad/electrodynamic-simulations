@@ -18,7 +18,7 @@ At the moment the simulation does not take into account electromagnetic field em
 
 To set the physical paramters, please manually modify the following codeblock found in [electrodynamic-sims.jl](https://github.com/toma-vlad/electrodynamic-simulations/blob/main/electrodynamic-sims.jl).
 
-```
+```julia
 const N = 25_000 # number of particles, for each ring, 4N for radius averaging
 const c = 137.036 # speed of light
 const ω = 0.057; const T₀ = 2π/ω # angular frequency, period
@@ -45,20 +45,20 @@ In the figure below, the intensity of a Laguerre-Gauss mode with right-handed tr
 <div align = "center"><img src = "img/xy00Energy1.02-1.png"></div>
 
 Given this field pattern, the zone of interest are the 3 high intensity rings. For each zone `N` initial conditions will be generated.
-```
+```julia
 R0 = [UniformAnnulus(w₀*p.roots[j], w₀*p.roots[j+1])[1] for i in 1:N]
 ```
 All particles start with `z = 0` i.e., in a XY-plane circle, around the origin. 
 
 Next we integrate the equations of motion using  [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl), namely 
 
-```
+```julia
 M = solve(eprob, Vern9(), EnsembleThreads(), abstol=1e-9, reltol=1e-9,
     saveat = (τf-τi)/time_samples, trajectories = 4N)
 ```
 and through `M` we have access to the 4-position, the 4-velocity, the [angular/boost momentum tensor](https://en.wikipedia.org/wiki/Relativistic_angular_momentum#4d_Angular_momentum_as_a_bivector) at every time step, for every particle. Our `output_func` returns for each particle a list at at regular time samples in the form of the function `Mμν(v)`.
-```
-    function Mμν(v)
+```julia
+function Mμν(v)
     x⁰, x¹, x², x³, u⁰, u¹, u², u³ = v
     Lx = x²*u³ - x³*u²
     Ly = x³*u¹ - x¹*u³
@@ -79,14 +79,14 @@ end
 Since we are dealing with a statistical ensemble, we look for collective behaviour through means. There are two kinds of means done in this script.
 
 - Time-wise: the relevant quantities are averaged using [ThreadsX.jl](https://github.com/tkf/ThreadsX.jl)
-```
+```julia
 function Particle_Avg(M,J)
     [ThreadsX.sum(getproperty(M[i][t], J)
     for i in 1:N)/N for t in 1:time_samples+1]
 end
 ```
 - Radius-wise (in the transverse plane): the relevant quantities get averaged over equidistant rings in the XY plane for their initial coordinates. The averaging is sped up by sorting the initial conditions according to `ρ`.
-```
+```julia
 RHO = [UniformAnnulus(0,maxR) for i in 1:4N] 
 RHOVec = VectorOfArray(RHO)
 idx = sortperm(RHO, lt=(x,y)->x[2]<y[2])
@@ -96,12 +96,12 @@ R1 = RHOVec[1,:][idx]
 ## Plots 
 
 In order to facilitate pretty graphics, trial and error lead to a solution utilizing [Serialization.jl](https://github.com/JuliaLang/julia/tree/master/stdlib/Serialization). This way, all plot objects will be saved, grouped in `plot_data` lists for each `sim_name` and saved as is in binary form (without file ending). 
-```
+```julia
 serialize("$(sim_name)", plot_data)
 ```
 
 They can then be reloaded and modified using the usual [Plots.jl](https://github.com/JuliaPlots/Plots.jl), just use 
-```
+```julia
 myplots = deserialize("name")
 ```
 and modify the plot elements as you would a regular plot.
