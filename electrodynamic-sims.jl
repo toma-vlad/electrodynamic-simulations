@@ -270,7 +270,7 @@ function Particle_AvgR²(M)
     for i in 1:N)/N for t in 1:time_samples+1]
 end
 
-io = open("lz_log_CN1.txt","w")
+io = open("output_log.txt","w")
 
 for(sim_name, p) in pairs(field_param)
     println("$(sim_name)")

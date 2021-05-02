@@ -108,7 +108,7 @@ and modify the plot elements as you would a regular plot.
 
 ## field_plots.jl
 
-This file contains the code used to generate some useful plots which give information about the fields we study. For example azimuthally mediated electromagnetic field energy for Laguerre-Gauss mode `p = 2` and `m = -1`:
+This file contains the code used to generate some useful plots which give information about the fields we study. For example azimuthally mediated electromagnetic field energy for Laguerre-Gauss mode `p = 2` and `m = 2`:
 
 <div align = "center"><img src = "img/box_rw0.022.png"></div>
 
