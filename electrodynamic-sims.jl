@@ -30,7 +30,7 @@ end
 
 folder_setup("output_particles")
 
-const N = 25_000 # number of particles, for each ring, 4N for radius averaging
+const N = 28_750 # number of particles, for each ring, 4N for radius averaging
 const c = 137.036 # speed of light
 const ω = 0.057; const T₀ = 2π/ω # angular frequency, period
 const k = ω*c # wavevector
@@ -40,7 +40,7 @@ const a₀ = 2.; const AA = a₀*c # (qA₀)/(mc) = a₀
 const w = 10.; const τ = w/ω; # temporal pulse decay time given in terms of number of oscilations and frequency 
 const n = 5 # number of periods to integrate before and after pulse collides with particles 
 const π₀ = a₀*c # in atomic units, a₀mc has units of linear momentum and sets the scale for linear momentum transfered to the particle, not that m = 1 for our particles
-const maxR = 3w₀ # maximum radius for distributing praticles
+const maxR = 3.25w₀ # maximum radius for distributing praticles
 
 const g = @SMatrix [1  0  0  0;
                     0 -1  0  0;
@@ -244,12 +244,6 @@ function problem_set(R0,p,U0 = [0,0,0])
     EnsembleProblem(prob,prob_func = Ret_ODEProb, output_func = output_func)
 end
 
-function replot(plt, p)
-    plot!(plt, [], [], label="\$a_0=$a₀\$", color=nothing)
-    plot!(plt, [], [], label="\$p=$(p.p)\$", color=nothing)
-    plot!(plt, [], [], label="\$m=$(p.m)\$", color=nothing)
-end
-
 function Particle_Avg(M,J)
     [ThreadsX.sum(getproperty(M[i][t], J)
     for i in 1:N)/N for t in 1:time_samples+1]
@@ -270,12 +264,95 @@ function Particle_AvgR²(M)
     for i in 1:N)/N for t in 1:time_samples+1]
 end
 
+# function replot!(plt, p)
+#     plot!(plt, [], [], label="\$a_0=$a₀\$", color=nothing)
+#     plot!(plt, [], [], label="\$p=$(p.p)\$", color=nothing)
+#     plot!(plt, [], [], label="\$m=$(p.m)\$", color=nothing)
+# end
+
+rectangle(w, h, x, y) = Shape(x .+ [0,w,w,0], y .+ [0,0,h,h])
+circ = Shape(Plots.partialcircle(0, 2π))
+
+function add_info!(plt, p, isscatter = false)
+    #there is either a bug or confusing behaviour with ylims and aspect_ratio
+    xl, yl = (isscatter ? ((-5.658368025329326, 5.667117711980884), (-3.662004592945377, 3.613120699860083)) : (xlims(plt), ylims(plt)))
+    frame_width = xl[2] - xl[1]
+    frame_height =yl[2] - yl[1]
+    box_ratio = (w = 0.14 + 0.05 * abs(p.type.ξy*√2), h = 0.31) # hardcoded, I don't know how to get display length
+
+    # lower left corner coordinates
+    box = (x = (0.99 - box_ratio.w)*frame_width + xl[1], 
+           y = (0.99 - box_ratio.h)*frame_height + yl[1],
+           w = box_ratio.w*frame_width,
+           h = box_ratio.h*frame_height)
+
+    # compute text positions 
+    text_x = box.x + box.w/2 # always centered on the box 
+    text_y = box.y + box.h # starting from the top, mind the minus
+    δy = box.h/8
+    
+    # find the exact strings to print, related to polarization
+    sgn = (imag(p.type.ξy) < 0 ? "-" : "")
+    xi = (p.type.ξy == 0 ? "\$\\xi_y=0\$" : "\$\\xi_y= $sgn\\mathrm{i}/\\sqrt{2}\$") 
+    
+    annotate!(plt, [(text_x, text_y - 1δy, Plots.text("\$a_0=$a₀\$",       :center, 10, "computer modern")),
+                    (text_x, text_y - 3δy, Plots.text(xi,                  :center, 10, "computer modern")),
+                    (text_x, text_y - 5δy, Plots.text("\$p=$(p.type.p)\$", :center, 10, "computer modern")),
+                    (text_x, text_y - 7δy, Plots.text("\$m=$(p.type.m)\$", :center, 10, "computer modern"))])
+    
+    # add a rectangle without changing the frame size
+    plot!(plt, rectangle(box.w, box.h, box.x, box.y); 
+                        xlims = xl, ylims = yl,
+                        linewidth = 1.5,
+                        fillcolor = :white, label = false)
+end
+
+function add_rect!(plt, X, Y, roots; kwargs...) 
+        h = ylims(plt)[2]-ylims(plt)[1]
+        y₀ = ylims(plt)[1]
+        underlay = plot([],[], label = false)
+        for i in 1:(length(roots) - 1)
+            a = roots[i]
+            b = roots[i+1]
+            plot!(underlay,rectangle(b-a, h, a, y₀), 
+            color_palette = :Set1_4, seriescolor = i,
+            fillalpha = .4, linecolor = nothing, label = false)
+        end
+        plot!(underlay, X, Y; 
+            xlims = xlims(plt), ylims = ylims(plt), kwargs...) 
+end
+
+common_settings = ( fontfamily = "computer modern", 
+                    dpi = 360, 
+                    label = false, 
+                    fillalpha=.3, 
+                    color_palette = :Set1_4,
+                    linewidth = 2)
+
 io = open("output_log.txt","w")
 
-for(sim_name, p) in pairs(field_param)
-    println("$(sim_name)")
+write(io,"""Simulation Paramters
 
-    plot_data = [plot([],[], label = false) for i in 1:6]
+Number of Particles per Ring,           N = $N
+Speed of Light [Atomic Units],          c = $c 
+Angular Frequency [Atomic Units],       ω = $ω
+Oscillation Period [Atomic Units],      T₀ = $T₀
+Wavenumber [Atomic Units],              k = $k
+Wavelength [Atomic Units],              λ = $λ 
+Beam Waist Radius [Atomic Units],       w₀ = $w₀ 
+Reduced Vector Potential,               a₀ = $a₀
+Number of Oscillations in the Pulse,    w = $w 
+Envelope Decay Time,                    τ = $τ  
+Maximum Linear Momentum Transfered,     π₀ = $π₀ 
+Disc Radius for Particle Distribution,  Rₘₐₓ = $maxR\n
+""") # save out important parameters
+
+for (sim_name, p) in pairs(field_param)
+    println("$sim_name")
+    folder_setup("$sim_name") # change folder for each simulation, as there are many files
+    write(io, "$sim_name\n")
+
+    plot_data = [plot([],[], label = false) for i in 1:7]
     
     for j in 1:(length(p.roots) - 1)
 
@@ -292,56 +369,86 @@ for(sim_name, p) in pairs(field_param)
         ρ² = Particle_AvgR²(M) 
 
         σz  = σA(z, z²)/w₀
-        σρ  = σA(ρ, ρ²)/w₀
+        # σρ  = σA(ρ, ρ²)/w₀ # not worth computing because it's too wide and breaks plots
         σLz = σA(Lz, Lz²)/w₀/π₀
         σL² = σA(L², L⁴)/w₀/π₀/w₀/π₀
 
         write(io, 
-            "$sim_name from $(p.roots[j]/w₀) to $(p.roots[j+1]/w₀)\n"*
+            "from $(p.roots[j]/w₀) to $(p.roots[j+1]/w₀)\n"*
+            "z ± σz $(z[end]/w₀) ± $(σz[end])\n"*
             "Lz ± σLz $(Lz[end]/w₀/π₀) ± $(σLz[end])\n"*
             "L² ± σL² $(L²[end]/w₀/π₀/w₀/π₀) ± $(σL²[end])\n"
              )
 
-        plot_data[1] = plot!(plot_data[1], Δτ, z/w₀, grid = false, ribbon = σz, fillalpha=.3,
-              dpi = 360, label = false, fontfamily = "computer modern", 
-              color_palette = :Set1_4, seriescolor = j, 
-              xlabel = L"\tau/T_0", ylabel = L"\overline{z}/w_0")
+        plot_data[1] = plot!(plot_data[1], Δτ, z/w₀; 
+                                common_settings...,
+                                ribbon = σz, 
+                                seriescolor = j, # these cannot be moved outside due to variable scope
+                                xlabel = L"\tau/T_0", 
+                                ylabel = L"\overline{z}/w_0")
 
-        plot_data[2] = plot!(plot_data[2], Δτ, ρ/w₀, grid = false, #ribbon = σρ, 
-                    fillalpha=.3,
-                    color_palette = :Set1_4, seriescolor = j,
-                    dpi = 360, label = false, fontfamily = "computer modern",  
-                    xlabel = L"\tau/T_0", ylabel = L"\overline{\rho}/w_0")
+        mean_ρ = 2/3*(p.roots[j+1]^3 - p.roots[j]^3)/(p.roots[j+1]^2 - p.roots[j]^2)
 
-        plot_data[3] = plot!(plot_data[3], Δτ, Lz/w₀/π₀, grid = false, ribbon = σLz, fillalpha=.3,
-                    color_palette = :Set1_4, seriescolor = j,
-                    dpi = 360, label = false, fontfamily = "computer modern",  
-                    xlabel = L"\tau/T_0", ylabel = L"\overline{L_z}/(w_0 \pi_0)")
+        plot_data[2] = plot!(plot_data[2], Δτ, ρ/w₀ .- mean_ρ; 
+                                common_settings..., 
+                                # ribbon = σρ, too big relative to ρ changes, makes plot unreadable               
+                                seriescolor = j,
+                                xlabel = L"\tau/T_0",
+                                ylabel = L"\Delta\overline{\rho}/w_0")
 
-        plot_data[4] = plot!(plot_data[4], Δτ, L²/w₀/π₀/w₀/π₀, grid = false, ribbon = (L²/w₀/π₀/w₀/π₀, σL²), label = false,
-                    color_palette = :Set1_4, seriescolor = j,
-                    fillalpha=.3, dpi = 360,  fontfamily = "computer modern",
-                    xlabel = L"\tau/T_0", ylabel = L"\overline{L^2}/(w_0^2 \pi_0^2)")
+        plot_data[3] = plot!(plot_data[3], Δτ, Lz/w₀/π₀;
+                                common_settings..., 
+                                ribbon = σLz,
+                                seriescolor = j,
+                                xlabel = L"\tau/T_0",
+                                ylabel = L"\overline{L_z}/(w_0 \pi_0)")
+
+        plot_data[4] = plot!(plot_data[4], Δτ, L²/w₀/π₀/w₀/π₀;
+                                common_settings...,
+                                ribbon = (L²/w₀/π₀/w₀/π₀, σL²),   
+                                seriescolor = j,
+                                xlabel = L"\tau/T_0",
+                                ylabel = L"\overline{L^2}/(w_0^2 \pi_0^2)")
 
     end
+    write(io,"\n")
 
-    replot(plot_data[1], p.type)
-    savefig(plot_data[1], "z_$(sim_name).pdf")
-    replot(plot_data[2], p.type)
-    savefig(plot_data[2], "rho_$(sim_name).pdf")
-    replot(plot_data[3], p.type)
-    savefig(plot_data[3], "Lz_$(sim_name).pdf")
-    replot(plot_data[4], p.type)
-    savefig(plot_data[4], "L2_$(sim_name).pdf")
+    add_info!(plot_data[1], p)
+    savefig(plot_data[1], "z_t_$(sim_name).png")
+    add_info!(plot_data[2], p)
+    savefig(plot_data[2], "rho_t_$(sim_name).png")
+    add_info!(plot_data[3], p)
+    savefig(plot_data[3], "Lz_t_$(sim_name).png")
+    add_info!(plot_data[4], p)
+    savefig(plot_data[4], "L2_t_$(sim_name).png")
 
     eprob = problem_set(R1, p)
-    M = solve(eprob, Vern9(), EnsembleThreads(), abstol=1e-9, reltol=1e-9,
+    M = solve(eprob, Vern9(), EnsembleThreads(), abstol = 1e-9, reltol = 1e-9,
             saveat = (τf-τi)/time_samples, trajectories = 4N)
 
+    X = [M[i][begin].x¹ for i in 1:4N]/w₀ # pulling out the initial x coordinates
+    Y = [M[i][begin].x² for i in 1:4N]/w₀ # pulling out the initial y coordinates    
+    Lz = [M[i][end].Lz for i in 1:4N] # pulling out the initial Lz for colouring   
+    colours = Lz/maximum(abs.(Lz)) # doing a normalization
+    
+    plot_data[7] = scatter(X,Y;
+        marker_z = colours,
+        markershape = circ,
+        markerstrokealpha = 0,
+        markersize = 1.2,
+        markercolor = :PuOr_11,
+        clims = (-1., 1.),
+        fontfamily = "computer modern", 
+        dpi = 360, 
+        label = false,  
+        xlabel = L"x/w_0", ylabel = L"y/w_0", 
+        aspect_ratio = 1)
+    add_info!(plot_data[7], p, true)
+    savefig(plot_data[7], "XYLz.png")
 
     xDens = 100
-    LzStats = zeros(xDens,3)
-    ρStats  = zeros(xDens,3) 
+    LzStats = zeros(xDens, 3)
+    ρStats  = zeros(xDens, 3) 
     Midx = 1
     for i in 1:xDens
         ρ_avg = 0.  
@@ -351,12 +458,12 @@ for(sim_name, p) in pairs(field_param)
         ρ²_   = 0.
         tally = 0
         m = M[Midx]
-        ρ = hypot(m[begin].x¹,m[begin].x²)
+        ρ = hypot(m[begin].x¹, m[begin].x²)
         while ρ < i * maxR/xDens
             ρ_avg += ρ  
             Lz_   += m[end].Lz
             Lz²_  += m[end].Lz^2
-            ρ_    += hypot(m[end].x¹,m[end].x²)
+            ρ_    += hypot(m[end].x¹, m[end].x²)
             ρ²_   += m[end].x¹^2 + m[end].x²^2
             tally += 1
             if Midx < 4N
@@ -365,30 +472,40 @@ for(sim_name, p) in pairs(field_param)
                 break 
             end 
             m = M[Midx]
-            ρ = hypot(m[begin].x¹,m[begin].x²)    
+            ρ = hypot(m[begin].x¹, m[begin].x²)    
         end
         LzStats[i,:] .= ρ_avg/tally, Lz_/tally, Lz²_/tally
         ρStats[i,:] .= ρ_avg/tally, ρ_/tally,  ρ²_/tally
     end  
 
-    plotLzρ = plot(LzStats[:,1]/w₀, LzStats[:,2]/π₀/w₀, grid = false, label = false,
-                ribbon = σA(LzStats[:,2],LzStats[:,3])/π₀/w₀, fillalpha=.3, dpi = 360,
-                fontfamily = "computer modern",
-                xlabel = L"\rho/w_0", ylabel = L"\overline{L_z}(\rho_0)/(w_0 \pi_0)")
-    replot(plotLzρ, p.type)
-    plot_data[5] = plotLzρ
-    savefig(plotLzρ, "Lz_rho_$(sim_name).pdf")
+    plot_data[5] = plot(LzStats[:,1]/w₀, LzStats[:,2]/π₀/w₀, 
+                        label = false,
+                        ribbon = σA(LzStats[:,2],LzStats[:,3])/π₀/w₀)
+    plot_data[5] = add_rect!(plot_data[5], LzStats[:,1]/w₀, LzStats[:,2]/π₀/w₀, p.roots;
+                        common_settings...,
+                        ribbon = σA(LzStats[:,2],LzStats[:,3])/π₀/w₀,
+                        seriescolor = 4,
+                        xlabel = L"\rho_0/w_0", 
+                        ylabel = L"\overline{L_z}(\rho_0)/(w_0 \pi_0)",
+                        )
+    add_info!(plot_data[5], p)
+    savefig(plot_data[5], "Lz_rho_$(sim_name).png")
     
-    plotρ = plot(ρStats[:,1]/w₀, ρStats[:,2]/w₀, grid = false, label = false,
-                ribbon = σA(LzStats[:,2],LzStats[:,3])/π₀/w₀, fillalpha=.3, dpi = 360,
-                fontfamily = "computer modern",
-                xlabel = L"\rho/w_0", ylabel = L"\overline{\rho}_{\mathrm{final}}(\rho_0)/w_0")
-    replot(plotρ, p.type)
-    plot_data[6] = plotρ
-    savefig(plotρ, "rho_rho_$(sim_name).pdf")
+    plot_data[6] = plot(ρStats[:,1]/w₀, ρStats[:,2]/w₀ .- ρStats[:,1]/w₀;
+                        label = false,
+                        ribbon = σA(ρStats[:,2],ρStats[:,3])/w₀)
+    plot_data[6] = add_rect!(plot_data[6], ρStats[:,1]/w₀, ρStats[:,2]/w₀ .- ρStats[:,1]/w₀, p.roots;
+                        common_settings...,
+                        ribbon = σA(ρStats[:,2],ρStats[:,3])/w₀,
+                        seriescolor = 4,
+                        xlabel = L"\rho_0/w_0", 
+                        ylabel = L"\Delta\overline{\rho}_{\mathrm{final}}(\rho_0)/w_0")
+    add_info!(plot_data[6], p)
+    savefig(plot_data[6], "rho_rho_$(sim_name).png")
 
     serialize("$(sim_name)", plot_data)
+    cd("..")
     println("done")
-
 end
+
 close(io)
