@@ -24,17 +24,18 @@ function folder_setup(path)
     end
 
     cd(path)
-    pwd()
+    println("moved in $path")
 end
 
-folder_setup("output_fields")
+cd(@__DIR__)
+folder_setup("output5")
 
 const c = 137.036 # speed of light
 const ω = 0.057; const T₀ = 2π/ω # angular frequency, period
-const k = ω*c # wavevector
+const k = ω/c # wavenumber
 const λ = c*T₀ # wavelength
-const w₀ = 75 * λ # is the waist radius
-const a₀ = 8.; const AA = a₀*c # (qA₀)/(mc) = a₀
+const w₀ = 5 * λ # is the waist radius
+const a₀ = 2.; const AA = a₀*c # (qA₀)/(mc) = a₀
 const w = 10.; const τ = w/ω; # temporal pulse decay time given in terms of number of oscilations and frequency 
 const n = 5 # number of periods to integrate before and after pulse collides with particles 
 const π₀ = a₀*c # in atomic units, a₀mc has units of linear momentum and sets the scale for linear momentum transfered to the particle, not that m = 1 for our particles
@@ -52,31 +53,31 @@ end
 #Right Circularly Polarized
 
 # p = 0
-CPLGTYPE00 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+CPLGTYPE00 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 0, p = 0,  ξx = (1. + 0im)/√2, ξy = (1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-CPLGTYPE0_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+CPLGTYPE0_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = -1, p = 0,  ξx = (1. + 0im)/√2, ξy = (1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-CPLGTYPE01 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+CPLGTYPE01 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 1, p = 0,  ξx = (1. + 0im)/√2, ξy = (1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
 
 # p = 1
-CPLGTYPE10 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+CPLGTYPE10 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 0, p = 1,  ξx = (1. + 0im)/√2, ξy = (1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-CPLGTYPE1_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+CPLGTYPE1_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = -1, p = 1,  ξx = (1. + 0im)/√2, ξy = (1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-CPLGTYPE11 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+CPLGTYPE11 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 1, p = 1,  ξx = (1. + 0im)/√2, ξy = (1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
 
 # p = 2
-CPLGTYPE2_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+CPLGTYPE2_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = -1, p = 2,  ξx = (1. + 0im)/√2, ξy = (1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-CPLGTYPE21 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+CPLGTYPE21 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 1, p = 2,  ξx = (1. + 0im)/√2, ξy = (1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-CPLGTYPE20 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+CPLGTYPE20 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 0, p = 2,  ξx = (1. + 0im)/√2, ξy = (1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.)) 
-CPLGTYPE2_2 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+CPLGTYPE2_2 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = -2, p = 2,  ξx = (1. + 0im)/√2, ξy = (1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-CPLGTYPE22 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+CPLGTYPE22 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 2, p = 2,  ξx = (1. + 0im)/√2, ξy = (1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
 
 
@@ -84,19 +85,19 @@ CPLGTYPE22 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, 
 #Left Circularly Polarized
 
 # p = 0
-MCPLGTYPE00 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+MCPLGTYPE00 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 0, p = 0,  ξx = (1. + 0im)/√2, ξy = (-1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-MCPLGTYPE0_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+MCPLGTYPE0_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = -1, p = 0,  ξx = (1. + 0im)/√2, ξy = (-1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-MCPLGTYPE01 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+MCPLGTYPE01 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 1, p = 0,  ξx = (1. + 0im)/√2, ξy = (-1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
 
 # p = 1
-MCPLGTYPE10 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+MCPLGTYPE10 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 0, p = 1,  ξx = (1. + 0im)/√2, ξy = (-1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-MCPLGTYPE1_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+MCPLGTYPE1_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = -1, p = 1,  ξx = (1. + 0im)/√2, ξy = (-1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-MCPLGTYPE11 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+MCPLGTYPE11 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 1, p = 1,  ξx = (1. + 0im)/√2, ξy = (-1im)/√2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
 
 
@@ -104,31 +105,31 @@ MCPLGTYPE11 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀,
 #Linearly Polarized
 
 # p = 0
-LPLGTYPE00 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+LPLGTYPE00 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 0, p = 0, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-LPLGTYPE0_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+LPLGTYPE0_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = -1, p = 0, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-LPLGTYPE01 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+LPLGTYPE01 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 1, p = 0, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
 
 # p = 1
-LPLGTYPE10 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+LPLGTYPE10 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 0, p = 1, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-LPLGTYPE1_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/4,
+LPLGTYPE1_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = -1, p = 1, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-LPLGTYPE11 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/4,
+LPLGTYPE11 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 1, p = 1, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
 
 # p = 2
-LPLGTYPE20 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+LPLGTYPE20 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 0, p = 2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-LPLGTYPE21 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+LPLGTYPE21 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 1, p = 2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-LPLGTYPE22 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+LPLGTYPE22 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = 2, p = 2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-LPLGTYPE2_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+LPLGTYPE2_1 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = -1, p = 2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
-LPLGTYPE2_2 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, # ϕ₀ = -π/2,
+LPLGTYPE2_2 = LaguerreGaussLaser(c = c, m_q = 1., q = -1., λ = λ, a₀ = a₀, ϕ₀ = -π/2,
     w₀ = w₀, m = -2, p = 2, profile = ConstantProfile()) # GaussProfile(c = c, τ = w/ω, z₀ = 0.))
 
 field_param = (
@@ -238,6 +239,7 @@ end
 
 for (sim_name, p) in pairs(field_param)
     folder_setup("$sim_name")
+    folder_setup("fields")
     pol = polarization(p)
 
     # useful function definitions
@@ -272,7 +274,7 @@ for (sim_name, p) in pairs(field_param)
     
     # plots start here
 
-    plot_data = [plot([], [], label = false) for i in 1:8]
+    plot_data = [plot([], [], label = false) for i in 1:9]
 
     # 1. Heatmaps
 
@@ -283,16 +285,40 @@ for (sim_name, p) in pairs(field_param)
     jz_period(x, y) = quadgk(t -> jz₀(x, y, t), 0, T₀, rtol = 1e-8, atol = 1e-8)[1]
 
     # plot_data[8] = heatmap(domainXY, domainXY, 
-    #             (x,y) -> jz_period(w₀*x, w₀*y)/wenergy_period(w₀*x, w₀*y); #(any([(abs(hypot(x,y)-root) < 0.05) for root in p.roots]) ? (p.type.m + imag(p.type.ξy)*√2)/ω : jz₀(w₀*x, w₀*y, T₀/4)/wenergy(w₀*x, w₀*y, T₀/4));
+    #             (x,y) -> 2ω*jz_period(w₀*x, w₀*y)/wenergy_period(w₀*x, w₀*y); #(any([(abs(hypot(x,y)-root) < 0.05) for root in p.roots]) ? (p.type.m + imag(p.type.ξy)*√2)/ω : jz₀(w₀*x, w₀*y, T₀/4)/wenergy(w₀*x, w₀*y, T₀/4));
     #             xlabel = L"x/w_0", ylabel = L"y/w_0", 
-    #             color_palette = :lajolla,
+    #             seriescolor = :lajolla,
     #             aspect_ratio = 1, common_settings...)
     # add_info!(plot_data[8], p, true) 
     # savefig(plot_data[8], "j_w$(imag(p.type.ξy)*√2)$(p.type.p)$(p.type.m).png")
+
+    jz_(x,y) = real((
+                x*(
+                    (E([x, y, 0], p.type)×conj(B([x, y, 0], p.type)))[2] + 
+                    (conj(E([x, y, 0], p.type))×B([x, y, 0], p.type))[2]
+                    ) 
+                    - 
+                y*(
+                    (E([x, y, 0], p.type)×conj(B([x, y, 0], p.type)))[1] + 
+                    (conj(E([x, y, 0], p.type))×B([x, y, 0], p.type))[1]
+                    ))
+                    )/4
+
+    w_(x,y) = real((E([x, y, 0], p.type)⋅conj(E([x, y, 0], p.type)) + c^2*conj(B([x, y, 0], p.type))⋅B([x, y, 0], p.type)))/2
+    
+    rjw(x,y) = (w_(x,y) < 1e-8 ? p.type.m + imag(p.type.ξy)*√2 : ω*jz_(x,y)/w_(x,y)) 
+
+    plot_data[9] = heatmap(domainXY, domainXY, 
+                (x,y) -> rjw(w₀*x, w₀*y); 
+                xlabel = L"x/w_0", ylabel = L"y/w_0", 
+                seriescolor = :lajolla,
+                aspect_ratio = 1, common_settings...)
+    add_info!(plot_data[9], p, true) 
+    savefig(plot_data[9], "j_w_$(imag(p.type.ξy)*√2)$(p.type.p)$(p.type.m).png")
     
     plot_data[1] = heatmap(domainXY, domainXY, (x,y) -> wenergy₀(w₀*x, w₀*y);
                 xlabel = L"x/w_0", ylabel = L"y/w_0", 
-                color_palette = :lajolla,
+                seriescolor = :linear_kryw_5_100_c67_n256,
                 aspect_ratio = 1, common_settings...)
     add_info!(plot_data[1], p, true) 
     savefig(plot_data[1], "xy00Energy$(imag(p.type.ξy)*√2)$(p.type.p)$(p.type.m).png")
@@ -300,7 +326,8 @@ for (sim_name, p) in pairs(field_param)
 
     plot_data[2] = heatmap(domainXY, domainXY, (x,y) -> xyEx(w₀*x, w₀*y);
                 xlabel = L"x/w_0", ylabel = L"y/w_0",
-                color_palette = :vik, 
+                seriescolor = :vik,
+                clims = x -> maximum(abs.(extrema(x))).*(-1,1), 
                 aspect_ratio = 1, common_settings...)
     add_info!(plot_data[2], p, true)
     savefig(plot_data[2], "xy00Ex$(imag(p.type.ξy)*√2)$(p.type.p)$(p.type.m).png")
@@ -308,7 +335,8 @@ for (sim_name, p) in pairs(field_param)
 
     plot_data[3] = heatmap(domainXY, domainXY, (x,y) -> xyEz(w₀*x, w₀*y);
                 xlabel = L"x/w_0", ylabel = L"y/w_0", 
-                color_palette = :vik, 
+                seriescolor = :vik,
+                clims = x -> maximum(abs.(extrema(x))).*(-1,1), 
                 aspect_ratio = 1, common_settings...)
     add_info!(plot_data[3], p, true)
     savefig(plot_data[3], "xy00Ez$(imag(p.type.ξy)*√2)$(p.type.p)$(p.type.m).png")
@@ -316,7 +344,8 @@ for (sim_name, p) in pairs(field_param)
 
     plot_data[4] = heatmap(domainXY, domainXY, (x,y) -> jz₀(w₀*x, w₀*y);
                 xlabel = L"x/w_0", ylabel = L"y/w_0",
-                color_palette = :vik, 
+                seriescolor = :vik,
+                clims = x -> maximum(abs.(extrema(x))).*(-1,1), 
                 aspect_ratio = 1, common_settings...)
     add_info!(plot_data[4], p, true)
     savefig(plot_data[4], "xy00jz$(imag(p.type.ξy)*√2)$(p.type.p)$(p.type.m).png")
@@ -354,4 +383,14 @@ for (sim_name, p) in pairs(field_param)
 
     serialize("plot_data_$(pol)_$(p.type.p)_$(p.type.m)", plot_data)
     cd("..")
+    cd("..")
 end
+
+using Telegram
+using Telegram.API: sendAnimation, sendMessage, sendSticker
+using ConfigEnv
+dotenv("../.env")
+
+sendAnimation(animation = "CgACAgQAAxkBAAMWYI1V67io3ILX4lFH-PzAZmoGfugAAi0CAAIvno1SOEmh8Ay-BCYfBA", caption = "Hei, tu!", disable_notification = true)
+sendMessage(text = "Fișierul `$(basename(@__FILE__))`, de pe $(ENV["HOSTNAME"]) a fost executat cu succes\\! 💯⌛️🧐", parse_mode = "MarkdownV2")
+sendSticker(sticker ="CAACAgIAAxkBAAMXYI1V9sq0HUcFb7jdWxkWC5bboqoAAg4AA-nYEygTpj1DX_hIHx8E", caption = "Totul a mers ok!", disable_notification = true)
